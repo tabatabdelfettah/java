@@ -1,0 +1,77 @@
+package com.lobashevski.ConnectionManager;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+
+/**
+ *
+ * @author tababt
+ */
+public class DBConnectionManager {
+
+	private static SessionFactory sessionFactory;
+
+	public static SessionFactory getSessionFactory() {
+		if (sessionFactory == null) {
+			BuildSessiionFactory();
+		}
+		return sessionFactory;
+	}
+
+	private static void BuildSessiionFactory() {
+		StandardServiceRegistry registry = null;
+		try {
+
+			registry = new StandardServiceRegistryBuilder().configure().build();
+			MetadataSources source = new MetadataSources(registry);
+			Metadata metadata = source.getMetadataBuilder().build();
+			sessionFactory = metadata.getSessionFactoryBuilder().build();
+		} catch (Exception e) {
+			if (registry != null) {
+				StandardServiceRegistryBuilder.destroy(registry);
+			}
+			System.err.println(e.getMessage());
+
+		}
+
+	}
+
+	public static Session getCurrentSession() {
+
+		return getSessionFactory().getCurrentSession();
+	}
+
+	public static Session OpenSession() {
+
+		return getSessionFactory().openSession();
+	}
+
+	public static void CloseSession() {
+
+		getSessionFactory().getCurrentSession().close();
+	}
+
+	public static void BigenTransaction() {
+
+		getCurrentSession().beginTransaction();
+	}
+
+	public static void CommitTransation() {
+
+		getCurrentSession().getTransaction().commit();
+	}
+
+	public static void rollbackTransaction() {
+
+		getCurrentSession().getTransaction().rollback();
+	}
+
+	public static boolean isAcive() {
+
+		return getCurrentSession().getTransaction().isActive();
+	}
+}

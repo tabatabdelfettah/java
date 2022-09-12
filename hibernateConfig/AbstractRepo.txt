@@ -1,0 +1,62 @@
+package com.lobashev.repos;
+
+import static com.lobashevski.ConnectionManager.DBConnectionManager.getCurrentSession;
+import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import org.hibernate.query.Query;
+
+
+
+public abstract class AbstractRepo<E> implements CommonRepo<E> {
+
+    private Class<E> entityType;
+    private String defaultOrder;
+
+    public AbstractRepo(Class<E> entityType) {
+        this.entityType = entityType;
+    }
+
+    
+
+
+    @Override
+    public E add(E entity) {
+       return (E) getCurrentSession().save(entity);
+       
+    }
+
+    @Override
+    public E update(E entity) {
+        return (E) getCurrentSession().merge(entity);
+
+    }
+
+    @Override
+    public void remove(Integer id) {
+        E foundEntity = getCurrentSession().load(entityType, id);
+        getCurrentSession().delete(foundEntity);
+    }
+
+    @Override
+    public E findById(Integer id) {
+        return getCurrentSession().get(entityType, id);
+    }
+
+    @Override
+    public List<E> findList() {
+        CriteriaBuilder criteriaBuilder = getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<E> EntityCriteriaQuery = criteriaBuilder.createQuery(entityType);
+        Root<E> from = EntityCriteriaQuery.from(entityType);
+        EntityCriteriaQuery.select(from);
+        EntityCriteriaQuery.orderBy(criteriaBuilder.asc(from.get(defaultOrder)));
+        Query<E> EntityQuery = getCurrentSession().createQuery(EntityCriteriaQuery);
+        List<E> EntityResultList = EntityQuery.getResultList();
+        return EntityResultList;
+    }
+    public void setDefaultOrder(String defaultOrder) {
+    this.defaultOrder=defaultOrder;
+    }
+
+}
