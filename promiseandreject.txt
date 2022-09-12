@@ -1,0 +1,44 @@
+import { AfterViewInit, Component, ElementRef, Input, OnInit} from '@angular/core';
+
+
+interface Istudent{
+  id:number;
+  name:string;
+  add:string;
+}
+
+
+@Component({
+  selector: 'home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnInit {
+salary=1234.44;
+date=new Date();
+/* students:Array<Istudent> ; */
+promiseData:string | undefined;
+promiseAsyncData:Promise<string> | undefined;
+myColor='';
+ngOnInit(): void {
+  }
+  constructor() {
+
+  this.getData().then((msg:string)=>this.promiseData=msg);
+  }
+
+getData(){
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      resolve('data returned from promise success')
+    },3000);
+  })
+
+}
+
+
+  track(std:Istudent){
+    return std.id;
+  }
+
+}
